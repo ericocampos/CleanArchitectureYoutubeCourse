@@ -32,12 +32,11 @@ public class AuthenticationService : IAuthenticationService
 
     public AuthenticationResult Register(string firstName, string lastName, string email, string password)
     {
-        //Check if users already exists
         if (_userRepository.GetUserByEmail(email) is not null)
             throw new Exception("User with given email already exists");
-
-        //Create user (generate unique Id)
+        
         var user = new User { FirstName = firstName, LastName = lastName, Email = email, Password = password };
+        _userRepository.Add(user);
 
         var token = _jwtTokenGenerator.GenerateToken(user);
 
