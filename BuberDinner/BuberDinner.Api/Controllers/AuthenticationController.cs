@@ -4,9 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BuberDinner.Api.Controllers;
 
-[ApiController]
 [Route("auth")]
-public class AuthenticationController : ControllerBase
+public class AuthenticationController : ApiController
 {
     private readonly IAuthenticationService _authenticationService;
 
@@ -19,15 +18,17 @@ public class AuthenticationController : ControllerBase
     public IActionResult Register(RegisterRequest request)
     {
         var authResult = _authenticationService.Register(request.FirstName, request.LastName, request.Email, request.Password);
-        var response = authResult.ToAuthenticationResponse();
-        return Ok(response);
+        return authResult.Match(
+            result => Ok(result.ToAuthenticationResponse()),
+            errors => Problem(errors));
     }
 
     [HttpPost("login")]
     public IActionResult Login(LoginRequest request)
     {
         var authResult = _authenticationService.Login(request.Email, request.Password);
-        var response = authResult.ToAuthenticationResponse();
-        return Ok(response);
+        return authResult.Match(
+         result => Ok(result.ToAuthenticationResponse()),
+         errors => Problem(errors));
     }
 }
